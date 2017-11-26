@@ -1,0 +1,32 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{fancyvrb}
+\author{Benjamin Fasquelle}
+\title{SEP}
+\begin{document}
+\maketitle
+
+
+\section{Protocole}
+
+$B \rightarrow A: \{k_{ab}\}_{K_{pub(A)}}$
+
+%recv_2(R, I, h(kir, n, R), {n}pk(I));
+
+$A \rightarrow B: <h(k_{ab}, n, B), \{n\}_{pub(B)} > $
+
+$B \rightarrow A: h(n)$
+
+%recv_4(R, I, {R, I, m1}kir);
+
+$A \rightarrow B: \{<A, B, m1>\}_{k_{AB}}$
+
+\end{document}
+
+
+$A \rightarrow B: aenc(A, K_{pub(B)})$
+
+$B \rightarrow A: aenc(k_{AB}, K_{pub(A)})$
