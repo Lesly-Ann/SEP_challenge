@@ -30,6 +30,25 @@ $B \rightarrow A: h(n)$
 
 $A \rightarrow B: \{<A, B, m>\}_{k_{AB}}$
 
+
+
+\section{Another one}
+
+\begin{itemize}
+\item $k_{ab}$: symmetric key
+\item $n$: nonce
+\item $m$: message
+\end{itemize}
+
+$A \rightarrow B: \{k_{ab}\}_{K_{pub(B)}}$
+
+
+$B \rightarrow A: \{n\}_{K_{ab}}$
+
+%recv_2(R, I, h(kir, n, R), {n}pk(I));
+
+$A \rightarrow B: \{< n, m >\}_{pub(B)} $
+
 \end{document}
 
 
