@@ -1,11 +1,20 @@
 \documentclass[10pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}   
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{fancyvrb}
-\author{Benjamin Fasquelle}
-\title{SEP}
+\usepackage{msc}
+
+% Setting for MSC diagrams
+\setlength{\levelheight}{0.75cm}
+\setlength{\instdist}{4.5cm}
+
+
+\author{Lesly-Ann Daniel \and Benjamin Fasquelle \and Rémi Hutin}
+\title{SEP challenge}
+
 \begin{document}
 \maketitle
 
@@ -18,20 +27,38 @@
 \item $m$: message
 \end{itemize}
 
-$B \rightarrow A: \{k_{ab}\}_{K_{pub(A)}}$
-
-%recv_2(R, I, h(kir, n, R), {n}pk(I));
-
-$A \rightarrow B: <h(k_{ab}, n, B), \{n\}_{pub(B)} > $
-
-$B \rightarrow A: h(n)$
-
-%recv_4(R, I, {R, I, m1}kir);
-
-$A \rightarrow B: \{<A, B, m>\}_{k_{AB}}$
+\begin{table}[!h]
+\centering
+\begin{tabular}{ll}
+$B \rightarrow A:$ & $\{k_{ab}\}_{K_{pub(A)}}$ \\
+$A \rightarrow B:$ & $\langle h(k_{ab}, n, B), \{n\}_{pub(B)} \rangle $\\
+$B \rightarrow A:$ & $h(n)$\\
+$A \rightarrow B:$ & $\{ \langle A, B, m \rangle \}_{k_{AB}}$
+\end{tabular}
+\end{table}
 
 
+\begin{figure}[!ht]
+\centering
+\begin{msc}{Protocole}
+  \declinst{A}{$A$}{}
+  \declinst{B}{$B$}{}
+  \nextlevel
+  \mess{$\{k_{ab}\}_{K_{pub(A)}}$}{B}{A}
+  \nextlevel
+  \mess{$\langle h(k_{ab}, n, B), \{n\}_{pub(B)} \rangle$}{A}{B}
+  \nextlevel
+  \mess{$h(n)$}{B}{A}
+  \nextlevel
+  \mess{$\{ \langle A, B, m \rangle \}_{k_{AB}}$}{A}{B}
+  \nextlevel
+\end{msc}
+\end{figure}
 
+
+
+
+\clearpage
 \section{Another one}
 
 \begin{itemize}
@@ -40,14 +67,32 @@ $A \rightarrow B: \{<A, B, m>\}_{k_{AB}}$
 \item $m$: message
 \end{itemize}
 
-$A \rightarrow B: \{k_{ab}\}_{K_{pub(B)}}$
 
 
-$B \rightarrow A: \{n\}_{K_{ab}}$
+\begin{table}[!h]
+\centering
+\begin{tabular}{ll}
+$A \rightarrow B:$ & $\{k_{ab}\}_{K_{pub(B)}}$ \\
+$B \rightarrow A:$ & $\{n\}_{k_{ab}}$ \\
+$A \rightarrow B:$ & $\{ \langle n, m \rangle \}_{pub(B)}$
+\end{tabular}
+\end{table}
 
-%recv_2(R, I, h(kir, n, R), {n}pk(I));
 
-$A \rightarrow B: \{< n, m >\}_{pub(B)} $
+\begin{figure}[!ht]
+\centering
+\begin{msc}{Protocole}
+  \declinst{A}{$A$}{}
+  \declinst{B}{$B$}{}
+  \nextlevel
+  \mess{$\{k_{ab}\}_{K_{pub(B)}}$}{A}{B}
+  \nextlevel
+  \mess{$\{n\}_{k_{ab}}$}{B}{A}
+  \nextlevel
+  \mess{$\{\langle n, m \rangle \}_{pub(B)}$}{A}{B}
+  \nextlevel
+\end{msc}
+\end{figure}
 
 \end{document}
 
