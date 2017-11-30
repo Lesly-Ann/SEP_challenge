@@ -22,15 +22,15 @@
 \section{Protocole}
 
 \begin{itemize}
-\item $K$: symmetric key
+\item $sec$: Secret
 \item $n$: nonce
 \end{itemize}
 
 \begin{table}[!h]
 \centering
 \begin{tabular}{ll}
-$A \rightarrow B:$ & $\{K\}_{pk(B)}$ \\
-$B \rightarrow A:$ & $\langle h(K, n, A), \{n\}_{pk(A)} \rangle $\\
+$A \rightarrow B:$ & $\langle h(A, sec), \{sec\}_{pk(B)} \rangle $ \\
+$B \rightarrow A:$ & $\langle h(sec, n, A), \{n\}_{pk(A)} \rangle $\\
 $A \rightarrow B:$ & $h(n)$\\
 \end{tabular}
 \end{table}
@@ -42,9 +42,9 @@ $A \rightarrow B:$ & $h(n)$\\
   \declinst{A}{$A$}{}
   \declinst{B}{$B$}{}
   \nextlevel
-  \mess{$\{K\}_{pk(B)}$}{A}{B}
+  \mess{$\langle h(A, sec), \{sec\}_{pk(B)} \rangle $}{A}{B}
   \nextlevel
-  \mess{$\langle h(K, n, A), \{n\}_{pk(A)} \rangle$}{B}{A}
+  \mess{$\langle h(sec, n, A), \{n\}_{pk(A)} \rangle $}{B}{A}
   \nextlevel
   \mess{$h(n)$}{A}{B}
   \nextlevel
