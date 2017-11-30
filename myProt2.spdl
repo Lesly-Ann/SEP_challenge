@@ -1,0 +1,38 @@
+hashfunction h;
+usertype Msg;
+usertype Key;
+
+protocol myProtocol(I,R)
+{
+	role I
+	{
+		fresh kir: Key;
+		var n: Nonce;
+		//var m1: Msg;
+
+		send_1(I, R, {kir}pk(R));
+		recv_2(R, I, h(kir, n, R), {n}pk(I));
+		//claim(I, Running, R, kir, n);
+		send_3(I, R, h(n));
+
+		// Test
+		//recv_4(R, I, {R, I, m1}kir);
+
+	}	
+	
+	role R
+	{
+		var kir: Key;
+		fresh n: Nonce;
+		//fresh m1: Msg;
+
+		recv_1(I, R, {kir}pk(R));
+		//claim(R, Running, I, kir, n);
+		send_2(R, I, h(kir, n, R), {n}pk(I));
+		recv_3(I, R, h(n));
+
+		// Test
+		//send_4(R, I, {R, I, m1}kir);
+
+	}
+}

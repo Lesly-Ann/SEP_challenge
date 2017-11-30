@@ -22,18 +22,16 @@
 \section{Protocole}
 
 \begin{itemize}
-\item $k_{ab}$: symmetric key
+\item $K$: symmetric key
 \item $n$: nonce
-\item $m$: message
 \end{itemize}
 
 \begin{table}[!h]
 \centering
 \begin{tabular}{ll}
-$B \rightarrow A:$ & $\{k_{ab}\}_{K_{pub(A)}}$ \\
-$A \rightarrow B:$ & $\langle h(k_{ab}, n, B), \{n\}_{pub(B)} \rangle $\\
-$B \rightarrow A:$ & $h(n)$\\
-$A \rightarrow B:$ & $\{ \langle A, B, m \rangle \}_{k_{AB}}$
+$A \rightarrow B:$ & $\{K\}_{pk(B)}$ \\
+$B \rightarrow A:$ & $\langle h(K, n, A), \{n\}_{pk(A)} \rangle $\\
+$A \rightarrow B:$ & $h(n)$\\
 \end{tabular}
 \end{table}
 
@@ -44,13 +42,11 @@ $A \rightarrow B:$ & $\{ \langle A, B, m \rangle \}_{k_{AB}}$
   \declinst{A}{$A$}{}
   \declinst{B}{$B$}{}
   \nextlevel
-  \mess{$\{k_{ab}\}_{K_{pub(A)}}$}{B}{A}
+  \mess{$\{K\}_{pk(B)}$}{A}{B}
   \nextlevel
-  \mess{$\langle h(k_{ab}, n, B), \{n\}_{pub(B)} \rangle$}{A}{B}
+  \mess{$\langle h(K, n, A), \{n\}_{pk(A)} \rangle$}{B}{A}
   \nextlevel
-  \mess{$h(n)$}{B}{A}
-  \nextlevel
-  \mess{$\{ \langle A, B, m \rangle \}_{k_{AB}}$}{A}{B}
+  \mess{$h(n)$}{A}{B}
   \nextlevel
 \end{msc}
 \end{figure}
