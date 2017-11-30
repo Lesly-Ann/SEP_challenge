@@ -1,60 +1,26 @@
 hashfunction h;
 usertype Msg;
-usertype Key;
+usertype MySecret;
 
 protocol myProtocol(I,R)
 {
 	role I
 	{
-		fresh kir: Key;
+		fresh sec: MySecret;
 		var n: Nonce;
-		var m1: Msg;
-		fresh m2: Msg;
 
-		send_1(I, R, {kir}pk(R));
-		recv_2(R, I, h(kir, n, R), {n}pk(I));
-		//claim(I, Running, R, kir, n);
+		send_1(I, R, h(I, sec), {sec}pk(R));
+		recv_2(R, I, h(sec, n, R), {n}pk(I));
 		send_3(I, R, h(n));
-
-		// Test
-		recv_4(R, I, {R, I, m1}kir);
-		//send_5(I, R, {I, R, m2}kir);
-		claim(I, Secret, m1);
-		//claim(I, Secret, m2);
-
-		claim(I, Secret, kir);
-		claim(I, Secret, n);
-		claim(I, Alive);
-		claim(I, Weakagree);
-		//claim(I, Commit, R, kir, n);
-		claim(I, Niagree);
-		claim(I, Nisynch);
 	}	
 	
 	role R
 	{
-		var kir: Key;
+		var sec: MySecret;
 		fresh n: Nonce;
-		fresh m1: Msg;
-		var m2: Msg;
 
-		recv_1(I, R, {kir}pk(R));
-		//claim(R, Running, I, kir, n);
-		send_2(R, I, h(kir, n, R), {n}pk(I));
+		recv_1(I, R, h(I, sec), {sec}pk(R));
+		send_2(R, I, h(sec, n, R), {n}pk(I));
 		recv_3(I, R, h(n));
-
-		// Test
-		send_4(R, I, {R, I, m1}kir);
-		//recv_5(I, R, {I, R, m2}kir);
-		claim(R, Secret, m1);
-		//claim(R, Secret, m2);
-
-		claim(R, Secret, kir);
-		claim(R, Secret, n);
-		claim(R, Alive);
-		claim(R, Weakagree);
-		//claim(R, Commit, I, kir, n);
-		claim(R, Niagree);
-		claim(R, Nisynch);
 	}
 }
