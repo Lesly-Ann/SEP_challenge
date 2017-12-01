@@ -56,21 +56,23 @@ Seul l'agent B connaît la clef privée correspondant à la clef publique $pk(B)
 À la seconde étape du protocole, l'agent B reçoit le message $\langle h(A, K), \{K\}_{pk(B)} \rangle $, envoyé par l'agent A.
 Grâce à sa clef privée, l'agent B peut ouvrir la deuxième partie du message, et donc connaître $K$.
 Il renvoie alors un hash de son nom, du secret $K$, et d'un nonce $n$, qu'il vient d'engendrer.
-Il envoie ensuite le nonce $n$, chiffré avec la clef publique $pk(A)$ de l'agent A.
+Il envoie également le nonce $n$, chiffré avec la clef publique $pk(A)$ de l'agent A.
 
 À la troisième étape du protocole, l'agent A reçoit le message $\langle h(B, K, n), \{n\}_{pk(A)} \rangle $, envoyé par l'agent B.
 Grâce à sa clef privée, l'agent A peut ouvrir la deuxième partie du message, et donc connaître $n$.
-Il renvoie alors un hash du nonce $n$. \\
+Il renvoie alors un hash du nonce $n$. B peut alors vérifier que les messages proviennent bien de A.\\
 
 
 \textbf{Propriétés de sécurité :}
 
 \textbf{Poids du protocole :}
 \begin{itemize}
-\item Règle 1 : 
-\item Règle 2 :
-\item Règle 3 :
+\item Règle 1 : $f( \langle h(A, K), \{K\}_{pk(B)} \rangle ) = f ( h(A, K) ) + f ( \{K\}_{pk(B)} ) = (5 + 1 + 1) + (1 + 1) = 9 $
+\item Règle 2 : $f(\langle h(B, K, n), \{n\}_{pk(A)} \rangle) = f(h(B, K, n)) + f(\{n\}_{pk(A)}) = (5 + 1 + 1 + 1) + (1 + 1) = 10 $
+\item Règle 3 : $f(h(n)) = 5 + 1 = 6$
 \end{itemize}
+
+\textbf{Coût total}: $f_{tot} = 9 + 10 + 6 = 25$
 
 
 
