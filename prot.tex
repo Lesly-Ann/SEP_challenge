@@ -8,8 +8,9 @@
 \usepackage{msc}
 
 % Setting for MSC diagrams
-\setlength{\levelheight}{0.75cm}
+\setlength{\levelheight}{0.6cm}
 \setlength{\instdist}{4.5cm}
+\setlength{\actionwidth}{1.5cm}
 
 
 \author{Lesly-Ann Daniel \and Benjamin Fasquelle \and Rémi Hutin}
@@ -22,15 +23,15 @@
 \section{Protocole}
 
 \begin{itemize}
-\item $sec$: Secret
+\item $K$: secret
 \item $n$: nonce
 \end{itemize}
 
 \begin{table}[!h]
 \centering
 \begin{tabular}{ll}
-$A \rightarrow B:$ & $\langle h(A, sec), \{sec\}_{pk(B)} \rangle $ \\
-$B \rightarrow A:$ & $\langle h(sec, n, A), \{n\}_{pk(A)} \rangle $\\
+$A \rightarrow B:$ & $\langle h(A, K), \{K\}_{pk(B)} \rangle $ \\
+$B \rightarrow A:$ & $\langle h(B, K, n), \{n\}_{pk(A)} \rangle $\\
 $A \rightarrow B:$ & $h(n)$\\
 \end{tabular}
 \end{table}
@@ -42,9 +43,13 @@ $A \rightarrow B:$ & $h(n)$\\
   \declinst{A}{$A$}{}
   \declinst{B}{$B$}{}
   \nextlevel
-  \mess{$\langle h(A, sec), \{sec\}_{pk(B)} \rangle $}{A}{B}
+  \action{secret $K$}{A}
+  \nextlevel[2]
+  \mess{$\langle h(A, K), \{K\}_{pk(B)} \rangle $}{A}{B}
   \nextlevel
-  \mess{$\langle h(sec, n, A), \{n\}_{pk(A)} \rangle $}{B}{A}
+  \action{nonce $n$}{B}
+  \nextlevel[2]
+  \mess{$\langle h(B, K, n), \{n\}_{pk(A)} \rangle $}{B}{A}
   \nextlevel
   \mess{$h(n)$}{A}{B}
   \nextlevel
@@ -54,45 +59,45 @@ $A \rightarrow B:$ & $h(n)$\\
 
 
 
-\clearpage
-\section{Another one}
+%\clearpage
+%\section{Another one}
 
-\begin{itemize}
-\item $k_{ab}$: symmetric key
-\item $n$: nonce
-\item $m$: message
-\end{itemize}
-
-
-
-\begin{table}[!h]
-\centering
-\begin{tabular}{ll}
-$A \rightarrow B:$ & $\{k_{ab}\}_{K_{pub(B)}}$ \\
-$B \rightarrow A:$ & $\{n\}_{k_{ab}}$ \\
-$A \rightarrow B:$ & $\{ \langle n, m \rangle \}_{pub(B)}$
-\end{tabular}
-\end{table}
+%\begin{itemize}
+%\item $k_{ab}$: symmetric key
+%\item $n$: nonce
+%\item $m$: message
+%\end{itemize}
 
 
-\begin{figure}[!ht]
-\centering
-\begin{msc}{Protocole}
-  \declinst{A}{$A$}{}
-  \declinst{B}{$B$}{}
-  \nextlevel
-  \mess{$\{k_{ab}\}_{K_{pub(B)}}$}{A}{B}
-  \nextlevel
-  \mess{$\{n\}_{k_{ab}}$}{B}{A}
-  \nextlevel
-  \mess{$\{\langle n, m \rangle \}_{pub(B)}$}{A}{B}
-  \nextlevel
-\end{msc}
-\end{figure}
+
+%\begin{table}[!h]
+%\centering
+%\begin{tabular}{ll}
+%$A \rightarrow B:$ & $\{k_{ab}\}_{K_{pub(B)}}$ \\
+%$B \rightarrow A:$ & $\{n\}_{k_{ab}}$ \\
+%$A \rightarrow B:$ & $\{ \langle n, m \rangle \}_{pub(B)}$
+%\end{tabular}
+%\end{table}
+
+
+%\begin{figure}[!ht]
+%\centering
+%\begin{msc}{Protocole}
+%  \declinst{A}{$A$}{}
+%  \declinst{B}{$B$}{}
+%  \nextlevel
+%  \mess{$\{k_{ab}\}_{K_{pub(B)}}$}{A}{B}
+%  \nextlevel
+%  \mess{$\{n\}_{k_{ab}}$}{B}{A}
+%  \nextlevel
+%  \mess{$\{\langle n, m \rangle \}_{pub(B)}$}{A}{B}
+%  \nextlevel
+%\end{msc}
+%\end{figure}
 
 \end{document}
 
 
-$A \rightarrow B: aenc(A, K_{pub(B)})$
+%$A \rightarrow B: aenc(A, K_{pub(B)})$
 
-$B \rightarrow A: aenc(k_{AB}, K_{pub(A)})$
+%$B \rightarrow A: aenc(k_{AB}, K_{pub(A)})$
