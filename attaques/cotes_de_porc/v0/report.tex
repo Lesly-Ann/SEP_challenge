@@ -1,0 +1,72 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}   
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{fancyvrb}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}	
+\usepackage{msc}
+
+% Setting for MSC diagrams
+\setlength{\levelheight}{0.6cm}
+\setlength{\instdist}{4.5cm}
+\setlength{\actionwidth}{1.5cm}
+
+
+\author{Lesly-Ann Daniel \and Benjamin Fasquelle \and Rémi Hutin}
+\title{
+Attack on: Côtes de Porc
+}
+
+\setlength\parindent{0pt}
+
+\begin{document}
+\maketitle
+
+
+\section{Description of the Attack}
+\begin{table}[!h]
+\centering
+\begin{tabular}{lll}
+$Bob \rightarrow Eve:$ & $(Bob,\{n1\}pk(Eve),\{K\}pk(Eve),h(Bob,K))$ \\
+$Eve(Bob) \rightarrow Alice:$ & $(Bob,\{ n1 \}pk(Alice),\{ sec \}pk(Alice),h(Bob,K))$ \\
+$Alice \rightarrow Bob:$ & $ (\{ n2 \}pk(Bob),h(K,n1,n2))$ & \#intercepted \\
+$Eve \rightarrow Bob:$ & $(\{n2\}pk(Bob),h(K,n1,n2)) $\\
+$Bob \rightarrow Eve:$ & $ n2 $\\
+$Eve \rightarrow Alice:$ & $ n2 $\\
+\end{tabular}
+\end{table}
+
+\paragraph{Man in the Middle Attack}
+\begin{itemize}
+ \item Bob initiates a session with Eve.
+ \item Eve reuses the key and the nonces to initiate a session with Alice, pretending she is Bob.
+ \item Alice, thinking that she is communicating with Bob follows the protocol and sends the second message with the nonce \(n2\) encrypted with Bob's public key.
+ \item Eve intercept the message and she send it to Bob pretending that she created it
+ \item Bob decrypts the nonce \(n2\) created by Alice and sends it back to Eve.
+ \item Finally Eve sends the nonce \(n2\) to Alice.
+\end{itemize}
+
+In this attack, Alice terminates the execution of the protocol thinking that she communicated with Bob, when she actually communicated with Alice. Therefore, both the {\em secrecy} of the secret $K$ (since Eve knows K) and the {\em weak agreement} properties are broken.
+
+% \begin{figure}[!ht]
+% \centering
+% \begin{msc}{Protocole}
+%   \declinst{A}{$A$}{}
+%   \declinst{B}{$B$}{}
+%   \nextlevel
+%   \action{secret $K$}{A}
+%   \nextlevel[2]
+%   \mess{$\langle h(A, K), \{K\}_{pk(B)} \rangle $}{A}{B}
+%   \nextlevel
+%   \action{nonce $n$}{B}
+%   \nextlevel[2]
+%   \mess{$\langle h(B, K, n), \{n\}_{pk(A)} \rangle $}{B}{A}
+%   \nextlevel
+%   \mess{$h(n)$}{A}{B}
+%   \nextlevel
+% \end{msc}
+% \end{figure}
+
+\end{document}
