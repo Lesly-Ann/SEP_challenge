@@ -1,0 +1,74 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}   
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{fancyvrb}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}	
+\usepackage{msc}
+
+% Setting for MSC diagrams
+\setlength{\levelheight}{0.6cm}
+\setlength{\instdist}{4.5cm}
+\setlength{\actionwidth}{1.5cm}
+
+
+\author{
+Lesly-Ann Daniel \and Benjamin Fasquelle \and Rémi Hutin\\
+}
+\title{
+Attack on: Gros Pigeons v0\\
+From group \textsc{BALEC}
+}
+
+\setlength\parindent{0pt}
+
+\begin{document}
+\maketitle
+
+
+\section{Description of the Attack}
+\begin{table}[!h]
+\centering
+\begin{tabular}{lll}
+$Bob \rightarrow Alice:$ & $\{ K \}pk(Alice)$ & \#intercepted\\
+$Charlie \rightarrow Alice:$ & $ \{ K \}pk(Alice)$\\
+$Alice \rightarrow Charlie:$ & $ (h(K),\{ n \}pk(Charlie)) $\\
+$Charlie(Alice) \rightarrow Bob:$ & $ (h(K),\{ n' \}pk(Bob))$\\
+$Bob \rightarrow Alice:$ & $h(n')$ & \#intercepted\\
+\end{tabular}
+\end{table}
+
+\paragraph{Man in the Middle Attack}
+Alice and Bob are honest agents and Charlie is dishonest.
+\begin{itemize}
+ \item Bob initiates a connexion with Alice. The message is intercepted by Charlie.
+ \item Charlie reuses Bob's message to initiate a new connexion with Alice.
+ \item Alice decrypts the secrert $K$ and sends its hash to Charlie.
+ \item Charlie generates a new nonce $n'$ et can reuse the hash calculated by Alice to answer to Bob.
+ \item Finally Bob terminates by sending the last message to Alice.
+\end{itemize}
+
+In this attack, Bob terminates the execution of the protocol thinking that he communicated with Alice, when he actually communicated with Charlie. The last message for instance, breaks the {\em non-injective agreement} since its has been received by Bob supposedly by Alice, but indeed has never been sent by Alice.
+
+% \begin{figure}[!ht]
+% \centering
+% \begin{msc}{Protocole}
+%   \declinst{A}{$A$}{}
+%   \declinst{B}{$B$}{}
+%   \nextlevel
+%   \action{secret $K$}{A}
+%   \nextlevel[2]
+%   \mess{$\langle h(A, K), \{K\}_{pk(B)} \rangle $}{A}{B}
+%   \nextlevel
+%   \action{nonce $n$}{B}
+%   \nextlevel[2]
+%   \mess{$\langle h(B, K, n), \{n\}_{pk(A)} \rangle $}{B}{A}
+%   \nextlevel
+%   \mess{$h(n)$}{A}{B}
+%   \nextlevel
+% \end{msc}
+% \end{figure}
+
+\end{document}
