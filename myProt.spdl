@@ -2,25 +2,25 @@ hashfunction h;
 usertype Msg;
 usertype MySecret;
 
-protocol myProtocol(I,R)
+protocol myProtocol(A,B)
 {
-	role I
+	role A
 	{
-		fresh sec: MySecret;
+		fresh K: MySecret;
 		var n: Nonce;
 
-		send_1(I, R, h(I, sec), {sec}pk(R));
-		recv_2(R, I, h(R, sec, n), {n}pk(I));
-		send_3(I, R, h(n));
+		send_1(A, B, h(A, K), {K}pk(B));
+		recv_2(B, A, h(B, K, n), {n}pk(A));
+		send_3(A, B, h(n));
 	}	
 	
-	role R
+	role B
 	{
-		var sec: MySecret;
+		var K: MySecret;
 		fresh n: Nonce;
 
-		recv_1(I, R, h(I, sec), {sec}pk(R));
-		send_2(R, I, h(R, sec, n), {n}pk(I));
-		recv_3(I, R, h(n));
+		recv_1(A, B, h(A, K), {K}pk(B));
+		send_2(B, A, h(B, K, n), {n}pk(A));
+		recv_3(A, B, h(n));
 	}
 }

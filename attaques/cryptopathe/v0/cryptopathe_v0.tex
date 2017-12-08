@@ -24,18 +24,18 @@
 \maketitle
 
 
-\section{Attaque}
+\section*{Attaque}
 
 Nous proposons l'attaque suivante:
 
 
 \begin{table}[!h]
 \centering
-\begin{tabular}{ll}
-$A \rightarrow B:$ & $\{k\}_{p(B)} $ \\
-$C \rightarrow B:$ & $\{k\}_{p(B)} $ \\
-$B \rightarrow C:$ & $h(B,n), \{\{n\}_k\}_{p(C)}$\\
-$C \rightarrow A:$ & $h(B,n), \{\{n\}_k\}_{p(B)}$\\
+\begin{tabular}{cll}
+$A \rightarrow B:$ & $\{k\}_{p(B)} $ & \#intercepté par $C$  \\
+$C(A) \rightarrow B:$ & $\{k\}_{p(B)} $ & \\
+$B \rightarrow C:$ & $h(B,n), \{\{n\}_k\}_{p(C)}$ & \\
+$C \rightarrow A:$ & $h(B,n), \{\{n\}_k\}_{p(A)}$ & \\
 \end{tabular}
 \end{table}
 
@@ -45,11 +45,12 @@ $C \rightarrow A:$ & $h(B,n), \{\{n\}_k\}_{p(B)}$\\
 L'agent A commence spontanément une conversation avec l'agent B, tous deux honnêtes.
 Un agent C, malhonnête, intercepte ce message, et le renvoie à B en se faisant passer pour A auprès de ce dernier.
 L'agent B répond alors à C, selon le protocole.
-L'agent C peut alors déchiffrer le message $\{\{n\}_k\}_{p(C)}$ à l'aide de sa clef privée. Il peut ensuite chiffrer le message dechiffré à l'aide de la clef publique de A, pour obtenir $\{\{n\}_k\}_{p(B)}$. Il peut alors envoyer le message $h(B,n), \{\{n\}_k\}_{p(B)}$ à A. \\
+L'agent C peut alors déchiffrer le message $\{\{n\}_k\}_{p(C)}$ à l'aide de sa clef privée. Il peut ensuite chiffrer le message dechiffré à l'aide de la clef publique de A, pour obtenir $\{\{n\}_k\}_{p(A)}$. Il peut alors envoyer le message $h(B,n), \{\{n\}_k\}_{p(A)}$ à A. 
+L'agent A reçoit ce message, et pense qu'il a été envoyé par B. \\
 
 L'agent malhonnête C n'a pas pu découvrir le secret K, ni le nonce n.
-Néanmoins, ni l'agent A, ni l'agent B ne se sont alors aperçus qu'ils étaient en communication avec C. 
-La propriété d'authentification n'est pas vérifiée.
+Néanmoins, ni l'agent A, ni l'agent B ne se sont aperçus qu'ils étaient en communication avec C. 
+La propriété d'authentification n'est donc pas vérifiée.
 
 
 
