@@ -10,7 +10,7 @@ protocol myProtocol(I,R)
 		fresh n1: Nonce;
 		var n2: Nonce;
 
-		send_1(I, R, {sec, I}pk(R), h(sec), {n1}pk(I));
+		send_1(I, R, {sec, I}pk(R), h(sec), {n1}pk(R));
 		recv_2(R, I, {n2, R}pk(I), n1);
 		send_3(I, R, n2);
 	}	
@@ -21,7 +21,7 @@ protocol myProtocol(I,R)
 		var n1: Nonce;
 		fresh n2: Nonce;
 
-		recv_1(I, R, {sec, I}pk(R), h(sec), {n1}pk(I));
+		recv_1(I, R, {sec, I}pk(R), h(sec), {n1}pk(R));
 		send_2(R, I, {n2, R}pk(I), n1);
 		recv_3(I, R, n2);
 	}
