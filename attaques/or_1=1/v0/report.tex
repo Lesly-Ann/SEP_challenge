@@ -1,0 +1,76 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}   
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{fancyvrb}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}	
+\usepackage{msc}
+
+% Setting for MSC diagrams
+\setlength{\levelheight}{0.6cm}
+\setlength{\instdist}{4.5cm}
+\setlength{\actionwidth}{1.5cm}
+
+
+\author{
+Lesly-Ann Daniel \and Benjamin Fasquelle \and Rémi Hutin\\
+}
+\title{
+Attack on: or 1=1\\
+From group \textsc{BALEC}
+}
+
+\setlength\parindent{0pt}
+
+\begin{document}
+\maketitle
+
+
+\section{Description of the Attack}
+\begin{table}[!h]
+\centering
+\begin{tabular}{lll}
+$Bob \rightarrow Eve:$ & $ \{Bob,K\}pk(Eve) $\\
+$Eve(Bob) \rightarrow Alice:$ & $ \{Bob,K\}pk(Alice) $ &\\
+$Alice \rightarrow Bob:$ & $ \{ h(K),N \}pk(Bob) $ & \#intercepted \\ 
+$Eve \rightarrow Bob:$ & $ \{ h(K),N \}pk(Bob) $ & \\
+$Bob \rightarrow Eve:$ & $ N $ &\\
+$Eve(Bob) \rightarrow Alice:$ & $ N $ &\\
+\end{tabular}
+\end{table}
+
+\paragraph{Man in the Middle Attack}
+Alice and Bob are honest agents and Eve is dishonest.
+\begin{itemize}
+ \item Bob initiates a connexion with Eve.
+ \item Eve initiates a connexion with Alice, pretending that she is Bob.
+ \item Alice respond to Bob with an encrypted nonce \(N\) with Bob's public key. This message is intercepted by the attacker.
+ \item Eve reuses this encrypted nonce and sends it to Bob to pursue her session of the protocol.
+ \item Bob sends the decrypted nonce back to Eve.
+ \item Eve can terminate the protocol with Alice by sending the decrypted nonce, pretending she is Bob.
+\end{itemize}
+
+In this attack, Alice terminates the execution of the protocol thinking that she communicated with Bob, when she actually communicated with Eve. The {\em secrecy} of the key $K$ is violated since it is known by the attacker. The {\em agreement} is also violated since the messages received by Alice from Bob were not sent by Bob.
+
+% \begin{figure}[!ht]
+% \centering
+% \begin{msc}{Protocole}
+%   \declinst{A}{$A$}{}
+%   \declinst{B}{$B$}{}
+%   \nextlevel
+%   \action{secret $K$}{A}
+%   \nextlevel[2]
+%   \mess{$\langle h(A, K), \{K\}_{pk(B)} \rangle $}{A}{B}
+%   \nextlevel
+%   \action{nonce $n$}{B}
+%   \nextlevel[2]
+%   \mess{$\langle h(B, K, n), \{n\}_{pk(A)} \rangle $}{B}{A}
+%   \nextlevel
+%   \mess{$h(n)$}{A}{B}
+%   \nextlevel
+% \end{msc}
+% \end{figure}
+
+\end{document}
