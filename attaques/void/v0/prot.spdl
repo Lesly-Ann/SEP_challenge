@@ -1,0 +1,41 @@
+# By Louis
+hashfunction h;
+usertype SessionKey;
+usertype MySecret;
+ 
+protocol void-0(A, B, S) {
+    role A {
+        fresh t: Nonce;
+        fresh K: MySecret;
+       
+        send_1(A, S, (t, A, B, pk(A), {h(t, A, B, pk(A))}k(A, S)));
+        recv_4(S, A, (B, {t, pk(B)}k(A, S), {h(t, B, pk(B))}k(A, S)));
+        send_5(A, B, {t, K}pk(B));
+        recv_6(B, A, {h(t, K)}pk(A));
+ 
+        claim(A, Secret, K);
+        claim(A, Weakagree);
+    }
+    role S {
+        var t: Nonce;
+ 
+        recv_1(A, S, (t, A, B, pk(A), {h(t, A, B, pk(A))}k(A, S)));
+        send_2(S, B, (t, A, pk(A), {h(t, A, pk(A))}k(B, S)));
+        recv_3(B, S, (A, {t, pk(B)}k(B, S), {h(t, A, pk(B))}k(B, S)));
+        send_4(S, A, (B, {t, pk(B)}k(A, S), {h(t, B, pk(B))}k(A, S)));
+ 
+        claim(S, Weakagree);
+    }
+    role B {
+        var t: Nonce;
+        var K: MySecret;
+ 
+        recv_2(S, B, (t, A, pk(A), {h(t, A, pk(A))}k(B, S)));
+        send_3(B, S, (A, {t, pk(B)}k(B, S), {h(t, A, pk(B))}k(B, S)));
+        recv_5(A, B, {t, K}pk(B));
+        send_6(B, A, {h(t, K)}pk(A));
+ 
+        claim(B, Secret, K);
+        claim(B, Weakagree);
+    }
+}
