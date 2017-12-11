@@ -6,8 +6,8 @@ protocol wb(A,B,S)
 		fresh Na: Nonce;
 		var Ns2: Nonce;
 
-		send_1(A,S, {A,B,K,Na}k(A,S));
-		recv_4(S,A,{{B}K,Ns2}k(A,S));
+		send_1(A,S, A,{A,B,K,Na}k(A,S));
+		recv_4(S,A,S,{{B}K,Ns2}k(A,S));
 	}	
 	
 	role B
@@ -16,8 +16,8 @@ protocol wb(A,B,S)
 		var Ns1: Nonce;
 		fresh Nb: Nonce;
 
-		recv_2(S,B, {A,S,K,Ns1}k(B,S));
-		send_3(B,S,{{B}K,B,Nb}k(B,S));
+		recv_2(S,B, S,{A,S,K,Ns1}k(B,S));
+		send_3(B,S,B,{{B}K,B,Nb}k(B,S));
 	}
 
 	role S
@@ -28,10 +28,10 @@ protocol wb(A,B,S)
 		fresh Ns1: Nonce;
 		fresh Ns2: Nonce;
 		
-		recv_1(A,S, {A,B,K,Na}k(A,S));
-		send_2(S,B, {A,S,K,Ns1}k(B,S));
-		recv_3(B,S,{{B}K,B,Nb}k(B,S));
-		send_4(S,A,{{B}K,Ns2}k(A,S));
+		recv_1(A,S, A,{A,B,K,Na}k(A,S));
+		send_2(S,B, S,{A,S,K,Ns1}k(B,S));
+		recv_3(B,S,B,{{B}K,B,Nb}k(B,S));
+		send_4(S,A,S,{{B}K,Ns2}k(A,S));
 	}
 }
 
