@@ -1,0 +1,26 @@
+hashfunction h;
+usertype Msg;
+usertype MySecret;
+
+protocol myProtocol(I,R)
+{
+	role I
+	{
+		fresh sec: MySecret;
+		var n: Nonce;
+
+		send_1(I, R, {sec, I}pk(R));
+		recv_2(R, I, h(sec), {n, R}pk(I));
+		send_3(I, R, h(n));
+	}	
+	
+	role R
+	{
+		var sec: MySecret;
+		fresh n: Nonce;
+
+		recv_1(I, R, {sec, I}pk(R));
+		send_2(R, I, h(sec), {n, R}pk(I));
+		recv_3(I, R, h(n));
+	}
+}
