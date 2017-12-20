@@ -1,0 +1,33 @@
+#by louis
+hashfunction h;
+usertype SessionKey;
+usertype MySecret;
+ 
+protocol bakatar-0(A, B, S) {
+    role A {
+        fresh K: MySecret;
+ 
+        send_1(A, S, (A, {B, K}k(A, S)));
+        recv_4(S, A, {B, h(K)}k(A, S));
+ 
+        claim(A, Secret, K);
+        claim(A, Weakagree);
+    }
+    role S {
+        var K: MySecret;
+ 
+        recv_1(A, S, (A, {B, K}k(A, S)));
+        send_2(S, B, {A, K}k(B, S));
+        recv_3(B, S, (B, {A, h(K)}k(B, S)));
+        send_4(S, A, {B, h(K)}k(A, S));
+    }
+    role B {
+        var K: MySecret;
+ 
+        recv_2(S, B, {A, K}k(B, S));
+        send_3(B, S, (B, {A, h(K)}k(B, S)));
+ 
+        claim(B, Secret, K);
+        claim(B, Weakagree);
+    }
+}
