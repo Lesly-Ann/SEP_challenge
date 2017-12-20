@@ -1,0 +1,65 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}   
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{fancyvrb}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}	
+\usepackage{msc}
+
+% Setting for MSC diagrams
+\setlength{\levelheight}{0.6cm}
+\setlength{\instdist}{4.5cm}
+\setlength{\actionwidth}{1.5cm}
+
+
+\author{
+Lesly-Ann Daniel \and Benjamin Fasquelle \and Rémi Hutin\\
+}
+\title{
+Attack on: whitebox v1\\
+From group \textsc{BALEC}
+}
+
+\setlength\parindent{0pt}
+
+\begin{document}
+\maketitle
+
+
+\section{Description of the Attack}
+\begin{table}[!h]
+\centering
+\begin{tabular}{lll}
+$Alice \rightarrow Server:$ & $ (Alice,\{Alice,Bob,K,Na1\}k(Alice,Server))$ & \\
+$Server \rightarrow Bob:$ & $ (Server,\{Alice,Server,K,Ns1\}k(Bob,Server))$ & \\
+$Bob \rightarrow Server:$ & $ (Bob,\{\{Bob,C\}K,Bob,Nb \}k(Bob,Server))$ & \#intercepted \\
+& & \\
+Attack:& Charlie triggers another run of the server &\\
+$Charlie(Alice) \rightarrow Server:$ & $ (Alice,\{ Alice,Bob,K,Na1 \}k(Alice,Server))$ & \#replay of the first message \\
+$Server \rightarrow Bob:$ & $ (Server,\{ Alice,Server,K,Ns1 \}k(Bob,Server))$ & \#intercepted \\
+$Chalie(Bob) \rightarrow Server:$ & $ (Bob,\{\{Bob,C\}K,Bob,Nb \}k(Bob,Server))$ & \#replay of the third message \\
+$Server \rightarrow Alice:$ & $ (Server,\{\{Bob,C\}K,Ns2 \}k(Alice,Server))$ & \\
+$Alice \rightarrow Server:$ & $ (Alice,\{C,Na2\}k(Alice,Server)) $ & \\
+\end{tabular}
+\end{table}
+
+\paragraph{Description}
+Alice, Bob and the server are honest agents and Charlie is dishonest and will delay and replay some packets (but will not modify them) to trigger another run of the server.
+\begin{itemize}
+ \item Alice initiates an connexion with the server.
+ \item The server follows the protocol and initiates the connexion with Bob.
+ \item Bob follows the protocol and responds to the server. This message is intercepted by the attacker.
+ \item The attacker replays the first message of Alice an initiates a new session of the protocol with the server.
+ \item The server follows the protocol and initiates the connexion with Bob. This message is intercepted by the attacker.
+ \item The attacker will reuse the third message (the answer from Bob to the server) and the server will believe that this message is the response to the one it just generated (as it is actually the response from the second message, generated in a previous run).
+ \item The the server will continue its second run of the protocol with Alice.
+ \item Alice will not notice that the message she sent at the beginning and the message she received from the server at the end did not involve the same run of the server and she fill finish the protocol by sending the last message.
+\end{itemize}
+
+At the end of the protocol execution for Alice, the non-injective agreement has been violated, her first message has been reused to trigger an other run of the protocol with the server: she will communicate with 2 runs of the server without noticing.
+
+\paragraph{Note}
+A variable C has been used in the protocol but was not defined, we assumed it was a Nonce.
+\end{document}

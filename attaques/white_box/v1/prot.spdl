@@ -1,0 +1,44 @@
+protocol wb(A,B,S)
+{
+	role A
+	{
+		fresh K: Nonce;
+		fresh Na1: Nonce;
+		var Ns2: Nonce;
+		var C: Nonce;
+
+		send_1(A,S, A,{A,B,K,Na1}k(A,S));
+		recv_4(S,A, S, {{B, C}K,Ns2}k(A,S));
+		send_5(A,S, A, {C, Na2}k(A,S));
+	}	
+	
+	role B
+	{
+		var K: Nonce;
+		var Ns1: Nonce;
+		fresh Nb: Nonce;
+		fresh C: Nonce;
+
+		recv_2(S,B, S,{A,S,K,Ns1}k(B,S));
+		send_3(B,S,B,{{B, C}K,B,Nb}k(B,S));
+		recv_6(S,B, S, {C, Na2}k(B,S));
+	}
+
+	role S
+	{
+		var Na1: Nonce;
+		var K: Nonce;
+		var Nb: Nonce;
+		fresh Ns1: Nonce;
+		fresh Ns2: Nonce;
+		var C: Nonce;
+		
+		recv_1(A,S, A,{A,B,K,Na1}k(A,S));
+		send_2(S,B, S,{A,S,K,Ns1}k(B,S));
+		recv_3(B,S,B,{{B, C}K,B,Nb}k(B,S));
+		send_4(S,A,S,{{B, C}K,Ns2}k(A,S));
+		recv_5(A,S, A, {C, Na2}k(A,S));
+		send_6(S,B, S, {C, Na2}k(B,S));
+	}
+}
+
