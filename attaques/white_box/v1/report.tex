@@ -7,6 +7,7 @@
 \usepackage{fancyvrb}
 \usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}	
 \usepackage{msc}
+\usepackage[normalem]{ulem}
 
 % Setting for MSC diagrams
 \setlength{\levelheight}{0.6cm}
@@ -38,7 +39,7 @@ $Bob \rightarrow Server:$ & $ (Bob,\{\{Bob,C\}K,Bob,Nb \}k(Bob,Server))$ & \#int
 & & \\
 Attack:& Charlie triggers another run of the server &\\
 $Charlie(Alice) \rightarrow Server:$ & $ (Alice,\{ Alice,Bob,K,Na1 \}k(Alice,Server))$ & \#replay of the first message \\
-$Server \rightarrow Bob:$ & $ (Server,\{ Alice,Server,K,Ns1 \}k(Bob,Server))$ & \#intercepted \\
+$Server \rightarrow Bob:$ & $ (Server,\{ Alice,Server,K,$ \sout{$Ns1$} $Ns1'\}k(Bob,Server))$ & \#intercepted (rectification)\\
 $Chalie(Bob) \rightarrow Server:$ & $ (Bob,\{\{Bob,C\}K,Bob,Nb \}k(Bob,Server))$ & \#replay of the third message \\
 $Server \rightarrow Alice:$ & $ (Server,\{\{Bob,C\}K,Ns2 \}k(Alice,Server))$ & \\
 $Alice \rightarrow Server:$ & $ (Alice,\{C,Na2\}k(Alice,Server)) $ & \\
@@ -58,7 +59,29 @@ Alice, Bob and the server are honest agents and Charlie is dishonest and will de
  \item Alice will not notice that the message she sent at the beginning and the message she received from the server at the end did not involve the same run of the server and she fill finish the protocol by sending the last message.
 \end{itemize}
 
-At the end of the protocol execution for Alice, the non-injective agreement has been violated, her first message has been reused to trigger an other run of the protocol with the server: she will communicate with 2 runs of the server without noticing.
+
+À la fin de l'exécution du protocole pour Alice, le propriété non-injective agreement n'est pas vérifiée.
+Nous reprenons les notations de la définition du cours et montrons (non-formellement) que la trace ci-dessus est un contre exemple pour cette propriété.
+
+Pour prouver que notre trace est un contre-exemple, il suffit de montrer qu'aucune cast fonction n'existe qui satisfaisant la propriété.
+Il y a dans cette traces deux possibilités pour la cast function $\Gamma$. Dans la première le rôle S est associé au run 1 (premier run du server), dans la seconde, le rôle S est associé au run 2 (second run du serveur).
+
+\paragraph{Cas $\Gamma(\_, S) = 1$}
+Les 3 premiers messages de la trace ci-dessus appartiennent au run 1 (soit le send, soit le receive).
+Dans ce cas, la propriété de non-injective agreement n'est pas respectée car si on prend les deux $RoleEvents$ $send_4$ et $recv_4$, c'est à dire correspondant à la communication (4) telle que définie dans votre spécification: $S \rightarrow A : S , senc ( < senc ( < B , C > , K ) , Ns2 > , Kas )$, il n'existe pas d'instanciation $inst''$ pour le message $send_4$ tel que $runidof(inst'') = 1$.
+C'est à dire que le message (4) qui a été reçu par Alice n'a pas été envoyé par le serveur lors du premier run.
+
+\paragraph{Cas $\Gamma(\_, S) = 2$}
+Les 5 derniers messages de la trace ci-dessus appartiennent au run 2 (soit le send, soit le receive).
+Dans ce cas, la propriété de non-injective agreement n'est pas respectée car si on prend les deux $RoleEvents$ $send_2$ et $recv_2$, c'est à dire correspondant à la communication (2) telle que définie dans votre spécification: $S \rightarrow B : S , senc ( < < < A , S > , K > , Ns1 > , Kbs ) $, il n'existe pas d'instanciation $inst'$ pour le message $recv_2$ et $inst''$ pour le message $send_2$ tel que $runidof(inst'') = 2$, et tel que le contenu des messages $send_2$ et  $recv_2$ soit identique.
+En effet, dans la trace, un seul $RunEvent$ correspond à $recv_2$: $recv_2(Server, Bob, (Server,\{Alice,Server,K,Ns1\}k(Bob,Server)))$.\\
+Et deux $RunEvents$ correspondent à $send_2$:
+\begin{itemize}
+\item $send_2(Server, Bob, (Server,\{Alice,Server,K,Ns1\}k(Bob,Server)))$ avec $runidof(inst'') = 1$, ce qui ne respecte pas la propriété puisque $\Gamma(\_, S) = 2$.
+\item $send_2(Server, Bob, (Server,\{Alice,Server,K,Ns1'\}k(Bob,Server)))$ avec $runidof(inst'') = 2$, ce qui ne respecte pas la propriété car le contenu des messages $recv_2$ et $send_2$ diffère par le Nonce $Ns1'$.
+\end{itemize}
+
+C'est à dire que le message (2) qui a été envoyé par le serveur lors du second run, n'a pas été reçu par Bob.
 
 \paragraph{Note}
 A variable C has been used in the protocol but was not defined, we assumed it was a Nonce.
