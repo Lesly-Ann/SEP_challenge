@@ -63,8 +63,8 @@ Alice, Bob and the server are honest agents and Charlie is dishonest and will de
 À la fin de l'exécution du protocole pour Alice, le propriété non-injective agreement n'est pas vérifiée.
 Nous reprenons les notations de la définition du cours et montrons (non-formellement) que la trace ci-dessus est un contre exemple pour cette propriété.
 
-Pour prouver que notre trace est un contre-exemple, il suffit de montrer qu'aucune cast fonction n'existe qui satisfaisant la propriété.
-Il y a dans cette traces deux possibilités pour la cast function $\Gamma$. Dans la première le rôle S est associé au run 1 (premier run du server), dans la seconde, le rôle S est associé au run 2 (second run du serveur).
+Pour prouver que notre trace est un contre-exemple, il suffit de montrer qu'il n'existe aucune cast fonction satisfaisant la propriété.
+Il y a dans la trace présentée ci-dessus, deux possibilités à considérer pour la cast function $\Gamma$. Dans la première le rôle S est associé au run 1 (premier run du server), dans la seconde, le rôle S est associé au run 2 (second run du serveur).
 
 \paragraph{Cas $\Gamma(\_, S) = 1$}
 Les 3 premiers messages de la trace ci-dessus appartiennent au run 1 (soit le send, soit le receive).
@@ -80,7 +80,6 @@ Et deux $RunEvents$ correspondent à $send_2$:
 \item $send_2(Server, Bob, (Server,\{Alice,Server,K,Ns1\}k(Bob,Server)))$ avec $runidof(inst'') = 1$, ce qui ne respecte pas la propriété puisque $\Gamma(\_, S) = 2$.
 \item $send_2(Server, Bob, (Server,\{Alice,Server,K,Ns1'\}k(Bob,Server)))$ avec $runidof(inst'') = 2$, ce qui ne respecte pas la propriété car le contenu des messages $recv_2$ et $send_2$ diffère par le Nonce $Ns1'$.
 \end{itemize}
-
 C'est à dire que le message (2) qui a été envoyé par le serveur lors du second run, n'a pas été reçu par Bob.
 
 \paragraph{Note}
