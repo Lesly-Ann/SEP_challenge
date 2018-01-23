@@ -142,7 +142,7 @@ A renvoie alors un hash du nonce $n$. B peut alors vérifier que les messages pr
 %\end{msc}
 %\end{figure}
 
-
+\newpage
 
 \section{Scyther}
 
@@ -179,6 +179,16 @@ protocol myProtocol(A,B)
 
 \section{ProVerif}
 
+
+La définition de la fonction de hashage en \textit{ProVerif} est la suivante:
+
+
+\begin{Verbatim}[fontsize=\scriptsize]
+fun h(bitstring):bitstring. (* hash function *)
+\end{Verbatim}
+
+Les deux processus sont les suivants:
+
 \begin{Verbatim}[fontsize=\scriptsize]
 (* initiator process *)
 let Pi(ski:skey, pkr:pkey) = 
@@ -205,7 +215,36 @@ process  ( Pi(ska, pk(skb)) | Pr(skb, pk(ska)))
 \end{Verbatim}
 
 
+L'event reach permet de vérifier qu'une exécution est menée à terme.
 
+On ajoute ensuite des queries pour vérifier que K (= ki dans \textit{ProVerif}) et n (= nr dans \textit{ProVerif}) sont secrets.
+
+\begin{Verbatim}[fontsize=\scriptsize]
+(* queries *)
+query event(reach).
+query attacker(new ki).
+query attacker(new nr).
+\end{Verbatim}
+
+La sortie donnée par \textit{ProVerif} nous montre que K et n restent bien secrets.
+
+\begin{Verbatim}[fontsize=\scriptsize]
+Completing equations...
+Completing equations...
+-- Query not attacker(nr_24[y2 = v_431,y1 = v_432])
+Completing...
+Starting query not attacker(nr_24[y2 = v_431,y1 = v_432])
+RESULT not attacker(nr_24[y2 = v_431,y1 = v_432]) is true.
+-- Query not attacker(ki[])
+Completing...
+Starting query not attacker(ki[])
+RESULT not attacker(ki[]) is true.
+-- Query not event(reach)
+Completing...
+Starting query not event(reach)
+goal reachable: end(reach)
+RESULT not event(reach) is false.
+\end{Verbatim}
 
 
 \end{document}

@@ -26,6 +26,8 @@ event reach.
 
 (* queries *)
 query event(reach).
+query attacker(new ki).
+query attacker(new nr).
 
 
 
@@ -50,7 +52,7 @@ let Pr (sk:skey, pki:pkey)=
 			if h(nr) = y3 then event reach.
 			
 (* main process *)
-process  ( Pi(ska, pk(skb)) | Pr(skb, pk(ska)) )
+process  ( Pi(ska, pk(skb)) | Pr(skb, pk(ska)))
 
 
 
