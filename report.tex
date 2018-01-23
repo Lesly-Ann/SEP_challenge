@@ -1,0 +1,216 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}   
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{fancyvrb}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}	
+\usepackage{msc}
+
+% Setting for MSC diagrams
+\setlength{\levelheight}{0.6cm}
+\setlength{\instdist}{4.5cm}
+\setlength{\actionwidth}{1.5cm}
+
+
+\author{Lesly-Ann Daniel \and Benjamin Fasquelle \and Rémi Hutin}
+\title{SEP challenge}
+
+\setlength\parindent{0pt}
+
+\begin{document}
+\maketitle
+
+
+\section{Protocole}
+
+\begin{itemize}
+\item $K$: secret
+\item $n$: nonce
+\end{itemize}
+
+\begin{table}[!h]
+\centering
+\begin{tabular}{ll}
+$A \rightarrow B:$ & $\langle h(A, K), \{K\}_{pk(B)} \rangle $ \\
+$B \rightarrow A:$ & $\langle h(B, K, n), \{n\}_{pk(A)} \rangle $\\
+$A \rightarrow B:$ & $h(n)$\\
+\end{tabular}
+\end{table}
+
+\textbf{Connaissances initiales :} 
+Au début du protocole, on suppose que l'agent A connaît la clef publique $pk(B)$ associée à l'agent B,
+et que l'agent B connaît la clef publique $pk(A)$ associée à l'agent A. \\
+
+\textbf{Valeurs générées au cours du protocole :} 
+$K$ est un secret frais créé par A.
+$n$ est un nonce généré par B.\\
+
+\textbf{Description du protocole :}
+À la première étape du protocole, l'agent A envoie un hash de son nom et du secret $K$. 
+A envoie également un message chiffré contenant le secret $K$. 
+Ce dernier est chiffré par un algorithme de chiffrement asymétrique avec la \emph{clef publique} de B, notée $pk(B)$.
+Seul l'agent B connaît la clef privée correspondant à la clef publique $pk(B)$. 
+
+À la seconde étape du protocole, l'agent B reçoit le message $\langle h(A, K), \{K\}_{pk(B)} \rangle $, envoyé par l'agent A.
+Grâce à sa clef privée, l'agent B peut ouvrir la deuxième partie du message, et donc connaître $K$.
+Il peut ensuite calculer le hash de A et $K$ et s'assurer que le secret n'a pas été réutilisé par un attaquant.
+Il renvoie alors un hash de son nom, du secret $K$, et d'un nonce $n$, qu'il vient d'engendrer.
+Il envoie également le nonce $n$, chiffré avec la clef publique $pk(A)$ de l'agent A.
+
+À la troisième étape du protocole, l'agent A reçoit le message $\langle h(B, K, n), \{n\}_{pk(A)} \rangle $, envoyé par l'agent B.
+Grâce à sa clef privée, l'agent A peut ouvrir la deuxième partie du message, et donc connaître $n$.
+Il peut aussi s'assurer de l'identité de B puisque seul lui a pu déchiffrer K.
+A renvoie alors un hash du nonce $n$. B peut alors vérifier que les messages proviennent bien de A puisque seul lui a pu déchiffrer le nonce.\\
+
+
+\textbf{Propriétés de sécurité :}
+\begin{itemize}
+ \item Authentification: Lorsque Bob reçoit le dernier message, il est sûr qu'il a communiqué avec Alice et lorsque Alice reçoit le second message, elle est sûre d'avoir communiqué avec Bob. 
+ \item Confidentialité: Alice et Bob sont les seuls à connaître le secret K (et le nonce n).
+\end{itemize}
+
+
+
+\textbf{Poids du protocole :}
+\begin{itemize}
+\item Règle 1 : $f( \langle h(A, K), \{K\}_{pk(B)} \rangle ) = f ( h(A, K) ) + f ( \{K\}_{pk(B)} ) = (5 + 1 + 1) + (1 + 1) = 9 $
+\item Règle 2 : $f(\langle h(B, K, n), \{n\}_{pk(A)} \rangle) = f(h(B, K, n)) + f(\{n\}_{pk(A)}) = (5 + 1 + 1 + 1) + (1 + 1) = 10 $
+\item Règle 3 : $f(h(n)) = 5 + 1 = 6$
+\end{itemize}
+
+\textbf{Coût total :} $f_{tot} = 9 + 10 + 6 = 25$
+
+
+
+\begin{figure}[!ht]
+\centering
+\begin{msc}{Protocole}
+  \declinst{A}{$A$}{}
+  \declinst{B}{$B$}{}
+  \nextlevel
+  \action{secret $K$}{A}
+  \nextlevel[2]
+  \mess{$\langle h(A, K), \{K\}_{pk(B)} \rangle $}{A}{B}
+  \nextlevel
+  \action{nonce $n$}{B}
+  \nextlevel[2]
+  \mess{$\langle h(B, K, n), \{n\}_{pk(A)} \rangle $}{B}{A}
+  \nextlevel
+  \mess{$h(n)$}{A}{B}
+  \nextlevel
+\end{msc}
+\end{figure}
+
+
+
+
+%\clearpage
+%\section{Another one}
+
+%\begin{itemize}
+%\item $k_{ab}$: symmetric key
+%\item $n$: nonce
+%\item $m$: message
+%\end{itemize}
+
+
+
+%\begin{table}[!h]
+%\centering
+%\begin{tabular}{ll}
+%$A \rightarrow B:$ & $\{k_{ab}\}_{K_{pub(B)}}$ \\
+%$B \rightarrow A:$ & $\{n\}_{k_{ab}}$ \\
+%$A \rightarrow B:$ & $\{ \langle n, m \rangle \}_{pub(B)}$
+%\end{tabular}
+%\end{table}
+
+
+%\begin{figure}[!ht]
+%\centering
+%\begin{msc}{Protocole}
+%  \declinst{A}{$A$}{}
+%  \declinst{B}{$B$}{}
+%  \nextlevel
+%  \mess{$\{k_{ab}\}_{K_{pub(B)}}$}{A}{B}
+%  \nextlevel
+%  \mess{$\{n\}_{k_{ab}}$}{B}{A}
+%  \nextlevel
+%  \mess{$\{\langle n, m \rangle \}_{pub(B)}$}{A}{B}
+%  \nextlevel
+%\end{msc}
+%\end{figure}
+
+
+
+\section{Scyther}
+
+\begin{Verbatim}[fontsize=\scriptsize]
+hashfunction h;
+usertype Msg;
+usertype MySecret;
+
+protocol myProtocol(A,B)
+{
+	role A
+	{
+		fresh K: MySecret;
+		var n: Nonce;
+
+		send_1(A, B, h(A, K), {K}pk(B));
+		recv_2(B, A, h(B, K, n), {n}pk(A));
+		send_3(A, B, h(n));
+	}	
+	
+	role B
+	{
+		var K: MySecret;
+		fresh n: Nonce;
+
+		recv_1(A, B, h(A, K), {K}pk(B));
+		send_2(B, A, h(B, K, n), {n}pk(A));
+		recv_3(A, B, h(n));
+	}
+}
+\end{Verbatim}
+
+
+
+\section{ProVerif}
+
+\begin{Verbatim}[fontsize=\scriptsize]
+(* initiator process *)
+let Pi(ski:skey, pkr:pkey) = 
+	 new ki:bitstring; 
+	 out(c, (h((pk(ski),ki)), aenc(ki, pkr)));
+	 in(c, (x1:bitstring, x2:bitstring));
+	 let (n:bitstring) = adec(x2, ski) in
+		 let (=h((pkr, ki, n)), nr:bitstring) = x1 in
+			 out(c, h(n)).
+	 
+
+(* responder process *)
+let Pr (sk:skey, pki:pkey)=
+	in(c, (y1:bitstring, y2:bitstring));
+	let (kr:bitstring) = adec(y2, sk) in
+		let (=h((pki(*pk(A)*),kr))) = y1 in
+			new nr:bitstring; 
+			out(c, (h((pk(sk), kr, nr)), aenc(nr, pki(*pk(A)*))));
+			in(c, y3:bitstring);
+			if h(nr) = y3 then event reach.
+			
+(* main process *)
+process  ( Pi(ska, pk(skb)) | Pr(skb, pk(ska)))
+\end{Verbatim}
+
+
+
+
+
+\end{document}
+
+
+%$A \rightarrow B: aenc(A, K_{pub(B)})$
+
+%$B \rightarrow A: aenc(k_{AB}, K_{pub(A)})$
