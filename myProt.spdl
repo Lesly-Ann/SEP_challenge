@@ -1,5 +1,4 @@
 hashfunction h;
-usertype Msg;
 usertype MySecret;
 
 protocol myProtocol(A,B)
@@ -7,20 +6,26 @@ protocol myProtocol(A,B)
 	role A
 	{
 		fresh K: MySecret;
-		var n: Nonce;
+		var W: Nonce;
 
 		send_1(A, B, h(A, K), {K}pk(B));
-		recv_2(B, A, h(B, K, n), {n}pk(A));
-		send_3(A, B, h(n));
+		recv_2(B, A, h(B, K, W), {W}pk(A));
+		send_3(A, B, h(W));
+
+		claim_4(A, Secret, K);
+		claim_6(A, Nisynch);
 	}	
 	
 	role B
 	{
-		var K: MySecret;
+		var V: MySecret;
 		fresh n: Nonce;
 
-		recv_1(A, B, h(A, K), {K}pk(B));
-		send_2(B, A, h(B, K, n), {n}pk(A));
+		recv_1(A, B, h(A, V), {V}pk(B));
+		send_2(B, A, h(B, V, n), {n}pk(A));
 		recv_3(A, B, h(n));
+
+		claim_5(B, Secret, V);
+		claim_7(B, Nisynch);
 	}
 }

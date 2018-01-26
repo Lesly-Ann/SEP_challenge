@@ -7,6 +7,7 @@
 \usepackage{fancyvrb}
 \usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}	
 \usepackage{msc}
+\usepackage{graphicx}
 
 % Setting for MSC diagrams
 \setlength{\levelheight}{0.6cm}
@@ -67,10 +68,9 @@ A renvoie alors un hash du nonce $n$. B peut alors vérifier que les messages pr
 
 \textbf{Propriétés de sécurité :}
 \begin{itemize}
- \item Authentification: Lorsque Bob reçoit le dernier message, il est sûr qu'il a communiqué avec Alice et lorsque Alice reçoit le second message, elle est sûre d'avoir communiqué avec Bob. 
+ \item Authentification: Si B termine en pensant avoir reçu une donnée K venant de A, alors A lui a bien envoyé K, et si A termine en ayant envoyé une donnée K à B, alors B a bien reçu K.
  \item Confidentialité: Alice et Bob sont les seuls à connaître le secret K (et le nonce n).
 \end{itemize}
-
 
 
 \textbf{Poids du protocole :}
@@ -82,73 +82,37 @@ A renvoie alors un hash du nonce $n$. B peut alors vérifier que les messages pr
 
 \textbf{Coût total :} $f_{tot} = 9 + 10 + 6 = 25$
 
-
-
-\begin{figure}[!ht]
-\centering
-\begin{msc}{Protocole}
-  \declinst{A}{$A$}{}
-  \declinst{B}{$B$}{}
-  \nextlevel
-  \action{secret $K$}{A}
-  \nextlevel[2]
-  \mess{$\langle h(A, K), \{K\}_{pk(B)} \rangle $}{A}{B}
-  \nextlevel
-  \action{nonce $n$}{B}
-  \nextlevel[2]
-  \mess{$\langle h(B, K, n), \{n\}_{pk(A)} \rangle $}{B}{A}
-  \nextlevel
-  \mess{$h(n)$}{A}{B}
-  \nextlevel
-\end{msc}
-\end{figure}
-
-
-
-
-%\clearpage
-%\section{Another one}
-
-%\begin{itemize}
-%\item $k_{ab}$: symmetric key
-%\item $n$: nonce
-%\item $m$: message
-%\end{itemize}
-
-
-
-%\begin{table}[!h]
-%\centering
-%\begin{tabular}{ll}
-%$A \rightarrow B:$ & $\{k_{ab}\}_{K_{pub(B)}}$ \\
-%$B \rightarrow A:$ & $\{n\}_{k_{ab}}$ \\
-%$A \rightarrow B:$ & $\{ \langle n, m \rangle \}_{pub(B)}$
-%\end{tabular}
-%\end{table}
-
-
-%\begin{figure}[!ht]
-%\centering
-%\begin{msc}{Protocole}
-%  \declinst{A}{$A$}{}
-%  \declinst{B}{$B$}{}
-%  \nextlevel
-%  \mess{$\{k_{ab}\}_{K_{pub(B)}}$}{A}{B}
-%  \nextlevel
-%  \mess{$\{n\}_{k_{ab}}$}{B}{A}
-%  \nextlevel
-%  \mess{$\{\langle n, m \rangle \}_{pub(B)}$}{A}{B}
-%  \nextlevel
-%\end{msc}
-%\end{figure}
+% \begin{figure}[!ht]
+% \centering
+% \begin{msc}{Protocole}
+%   \declinst{A}{$A$}{}
+%   \declinst{B}{$B$}{}
+%   \nextlevel
+%   \action{secret $K$}{A}
+%   \nextlevel[2]
+%   \mess{$\langle h(A, K), \{K\}_{pk(B)} \rangle $}{A}{B}
+%   \nextlevel
+%   \action{nonce $n$}{B}
+%   \nextlevel[2]
+%   \mess{$\langle h(B, K, n), \{n\}_{pk(A)} \rangle $}{B}{A}
+%   \nextlevel
+%   \mess{$h(n)$}{A}{B}
+%   \nextlevel
+% \end{msc}
+% \end{figure}
 
 \newpage
 
 \section{Scyther}
-
+Nous utilisons scyther pour vérifier les propriétés suivantes:
+\begin{itemize}
+ \item Confidentialité de la clé K vis à vis de A et de B.
+ \item Non-injective synchronization (qui implique aussi non-injective agreement et weak-aliveness) qui déclare que les messages reçus ont bien été envoyés par le partenaire et les messages reçus ont bien eté reçus.
+\end{itemize}
+Les deux propriétés ci-dessus suffisent à assurer que la clé K est secrète et que quand les deux partenaires recoivent le dernier message, ils sont sûrs d'avoir communiqué ensemble et que le contenu des messages envoyés et reçus correspond.
+Le code scyther est le suivant:
 \begin{Verbatim}[fontsize=\scriptsize]
 hashfunction h;
-usertype Msg;
 usertype MySecret;
 
 protocol myProtocol(A,B)
@@ -156,34 +120,44 @@ protocol myProtocol(A,B)
 	role A
 	{
 		fresh K: MySecret;
-		var n: Nonce;
+		var W: Nonce;
 
 		send_1(A, B, h(A, K), {K}pk(B));
-		recv_2(B, A, h(B, K, n), {n}pk(A));
-		send_3(A, B, h(n));
+		recv_2(B, A, h(B, K, W), {W}pk(A));
+		send_3(A, B, h(W));
+
+		claim_4(A, Secret, K);
+		claim_6(A, Nisynch);
 	}	
 	
 	role B
 	{
-		var K: MySecret;
+		var V: MySecret;
 		fresh n: Nonce;
 
-		recv_1(A, B, h(A, K), {K}pk(B));
-		send_2(B, A, h(B, K, n), {n}pk(A));
+		recv_1(A, B, h(A, V), {V}pk(B));
+		send_2(B, A, h(B, V, n), {n}pk(A));
 		recv_3(A, B, h(n));
+
+		claim_5(B, Secret, V);
+		claim_7(B, Nisynch);
 	}
 }
 \end{Verbatim}
+D'après Scyther, les deux proprietés sont verifiées, voir Figure \ref{fig:scyther_proof}. Notez aussi que chaque claim automatique est aussi vérifié par scyther.
+Attention cependant, la propriété de synchronisation non-injective ne garantie pas une protection contre les attaques par rejeu, il faudrait prouver la synchronisation injective.
 
-Scyther ne trouve pas d'attaques sur ce protocole.
+\begin{figure}[h]
+\label{fig:scyther_proof}
+\centering
+\includegraphics[scale=.5]{scyther_proof}
+\caption{Vérification des propriétés par scyther.}
+\end{figure}
+
 
 
 \section{ProVerif}
-
-
 La définition de la fonction de hashage en \textit{ProVerif} est la suivante:
-
-
 \begin{Verbatim}[fontsize=\scriptsize]
 fun h(bitstring):bitstring. (* hash function *)
 \end{Verbatim}
