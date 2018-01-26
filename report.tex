@@ -82,24 +82,24 @@ A renvoie alors un hash du nonce $n$. B peut alors vérifier que les messages pr
 
 \textbf{Coût total :} $f_{tot} = 9 + 10 + 6 = 25$
 
-% \begin{figure}[!ht]
-% \centering
-% \begin{msc}{Protocole}
-%   \declinst{A}{$A$}{}
-%   \declinst{B}{$B$}{}
-%   \nextlevel
-%   \action{secret $K$}{A}
-%   \nextlevel[2]
-%   \mess{$\langle h(A, K), \{K\}_{pk(B)} \rangle $}{A}{B}
-%   \nextlevel
-%   \action{nonce $n$}{B}
-%   \nextlevel[2]
-%   \mess{$\langle h(B, K, n), \{n\}_{pk(A)} \rangle $}{B}{A}
-%   \nextlevel
-%   \mess{$h(n)$}{A}{B}
-%   \nextlevel
-% \end{msc}
-% \end{figure}
+\begin{figure}[!ht]
+\centering
+\begin{msc}{Protocole}
+  \declinst{A}{$A$}{}
+  \declinst{B}{$B$}{}
+  \nextlevel
+  \action{secret $K$}{A}
+  \nextlevel[2]
+  \mess{$\langle h(A, K), \{K\}_{pk(B)} \rangle $}{A}{B}
+  \nextlevel
+  \action{nonce $n$}{B}
+  \nextlevel[2]
+  \mess{$\langle h(B, K, n), \{n\}_{pk(A)} \rangle $}{B}{A}
+  \nextlevel
+  \mess{$h(n)$}{A}{B}
+  \nextlevel
+\end{msc}
+\end{figure}
 
 \newpage
 
@@ -157,74 +157,100 @@ Attention cependant, la propriété de synchronisation non-injective ne garantie
 
 
 \section{ProVerif}
-La définition de la fonction de hashage en \textit{ProVerif} est la suivante:
-\begin{Verbatim}[fontsize=\scriptsize]
-fun h(bitstring):bitstring. (* hash function *)
-\end{Verbatim}
-
-Les deux processus sont les suivants:
-
+La définition des deux processus en \textit{ProVerif} est la suivante:
 \begin{Verbatim}[fontsize=\scriptsize]
 (* initiator process *)
 let Pi(ski:skey, pkr:pkey) = 
-	 new ki:bitstring; 
-	 out(c, (h((pk(ski),ki)), aenc(ki, pkr)));
-	 in(c, (x1:bitstring, x2:bitstring));
-	 let (n:bitstring) = adec(x2, ski) in
-		 let (=h((pkr, ki, n)), nr:bitstring) = x1 in
-			 out(c, h(n)).
-	 
+  new ki:bitstring;
+
+  (* Send the first message *)
+  out(c, (h((pk(ski),ki)), aenc(ki, pkr)));
+
+  (* Receive the second message *)
+  in(c, (x1:bitstring, x2:bitstring));
+  let (W:bitstring) = adec(x2, ski) in
+  (* Check the hash *)
+  let (=h((pkr, ki, W)), nr:bitstring) = x1 in
+
+  (* Send the last message*)
+  event startI(pk(ski),pkr,ki,W);
+  out(c, h(W));
+  if pkr <> pk(skc) then
+    event acceptI(pk(ski),pkr,ki,W). 
 
 (* responder process *)
-let Pr (sk:skey, pki:pkey)=
-	in(c, (y1:bitstring, y2:bitstring));
-	let (kr:bitstring) = adec(y2, sk) in
-		let (=h((pki(*pk(A)*),kr))) = y1 in
-			new nr:bitstring; 
-			out(c, (h((pk(sk), kr, nr)), aenc(nr, pki(*pk(A)*))));
-			in(c, y3:bitstring);
-			if h(nr) = y3 then event reach.
-			
-(* main process *)
-process  ( Pi(ska, pk(skb)) | Pr(skb, pk(ska)))
+let Pr(skr:skey, pki:pkey)=
+  (* Receive the first message *)
+  in(c, (y1:bitstring, y2:bitstring));
+  let (V:bitstring) = adec(y2, skr) in
+  let (=h((pki,V))) = y1 in
+
+  (* Send the second message *)
+  new nr:bitstring;
+  event startR(pki,pk(skr),V,nr);
+  out(c, (h((pk(skr), V, nr)), aenc(nr, pki)));
+
+  (* Receive the last message *)
+  in(c, y3:bitstring);
+  if h(nr) = y3 && pki <> pk(skc) then
+    event acceptR(pki,pk(skr),V,nr).
 \end{Verbatim}
 
-
-L'event reach permet de vérifier qu'une exécution est menée à terme.
-
-On ajoute ensuite des queries pour vérifier que K (= ki dans \textit{ProVerif}) et n (= nr dans \textit{ProVerif}) sont secrets.
-
+On ajoute ensuite des queries pour vérifier que K (ki dans \textit{ProVerif}) reste secret:
 \begin{Verbatim}[fontsize=\scriptsize]
 (* queries *)
-query event(reach).
 query attacker(new ki).
-query attacker(new nr).
+
+process  ( ! Pi(ska, pk(skb)) | ! Pr(skb, pk(ska))
+         | out(c, pk(ska)) | out(c, pk(skb)) | out(c,skc))
 \end{Verbatim}
-
-La sortie donnée par \textit{ProVerif} nous montre que K et n restent bien secrets.
-
+Proverif nour répond que la confidentialité de K est vraie:
 \begin{Verbatim}[fontsize=\scriptsize]
-Completing equations...
-Completing equations...
--- Query not attacker(nr_24[y2 = v_431,y1 = v_432])
+-- Query not attacker(ki[!1 = v_417])
 Completing...
-Starting query not attacker(nr_24[y2 = v_431,y1 = v_432])
-RESULT not attacker(nr_24[y2 = v_431,y1 = v_432]) is true.
--- Query not attacker(ki[])
-Completing...
-Starting query not attacker(ki[])
-RESULT not attacker(ki[]) is true.
--- Query not event(reach)
-Completing...
-Starting query not event(reach)
-goal reachable: end(reach)
-RESULT not event(reach) is false.
+Starting query not attacker(ki[!1 = v_417])
+RESULT not attacker(ki[!1 = v_417]) is true.
 \end{Verbatim}
 
+Enfin, pour l'authentification, on définit les propriétés suivantes qui s'assurent que si A termine en ayant envoyé une donnée K à B, alors B a bien reçu K, et si B termine en pensant avoir reçu une donnée K venant de A, alors A lui a bien envoyé K.
+\begin{Verbatim}[fontsize=\scriptsize]
+(* events *)
+event acceptI(pkey, pkey, bitstring, bitstring).
+event startR(pkey, pkey, bitstring, bitstring).
+event acceptR(pkey, pkey, bitstring, bitstring).
+event startI(pkey, pkey, bitstring, bitstring).
 
+(* queries *)
+query x1:pkey, x2:pkey, x3:bitstring, x4:bitstring; event(acceptI(x1,x2,x3,x4)) ==> event(startR(x1,x2,x3,x4)).
+query x1:pkey, x2:pkey, x3:bitstring, x4:bitstring; event(acceptR(x1,x2,x3,x4)) ==> event(startI(x1,x2,x3,x4)).
+
+(* main process *)
+process  ( ! Pi(ska, pk(ska)) | ! Pi(ska, pk(skb)) | ! Pi(ska, pk(skc))
+         | ! Pi(skb, pk(ska)) | ! Pi(skb, pk(skb)) | ! Pi(skb, pk(skc))
+         | ! Pr(ska, pk(ska)) | ! Pr(ska, pk(skb)) | ! Pr(ska, pk(skc))
+         | ! Pr(skb, pk(ska)) | ! Pr(skb, pk(skb)) | ! Pr(skb, pk(skc))
+         | out(c, pk(ska)) | out(c, pk(skb)) | out(c,skc)
+\end{Verbatim}
+\textit{ProVerif} nous répond que nos propriétés sont vraies (pour la seconde propriété, la réponse est similaire):
+\begin{Verbatim}[fontsize=\scriptsize]
+-- Query event(acceptI(x1_3829,x2_3830,x3_3831,x4_3832)) ==> event(startR(x1_3829,x2_3830,x3_3831,x4_3832))
+Completing...
+nounif attacker(aenc(V_7143,pk(ska[])))/-5000
+200 rules inserted. The rule base contains 141 rules. 96 rules in the queue.
+nounif attacker(aenc(V_7387,pk(skb[])))/-5000
+Starting query event(acceptI(x1_3829,x2_3830,x3_3831,x4_3832)) ==> event(startR(x1_3829,x2_3830,x3_3831,x4_3832))
+goal reachable: begin(startR(pk(skb[]),pk(skb[]),ki_39[!1 = @sid_8579],nr_68[y2_66 = aenc(ki_39[!1 = @sid_8579],pk(skb[])),y1_65 =
+h((pk(skb[]),ki_39[!1 = @sid_8579])),!1 = @sid_8580])) -> end(acceptI(pk(skb[]),pk(skb[]),ki_39[!1 = @sid_8579],nr_68[y2_66 =
+aenc(ki_39[!1 = @sid_8579],pk(skb[])),y1_65 = h((pk(skb[]),ki_39[!1 = @sid_8579])),!1 = @sid_8580]))
+goal reachable: begin(startR(pk(ska[]),pk(skb[]),ki_24[!1 = @sid_8583],nr_63[y2_61 = aenc(ki_24[!1 = @sid_8583],pk(skb[])),y1_60 =
+h((pk(ska[]),ki_24[!1 = @sid_8583])),!1 = @sid_8584])) -> end(acceptI(pk(ska[]),pk(skb[]),ki_24[!1 = @sid_8583],nr_63[y2_61 =
+aenc(ki_24[!1 = @sid_8583],pk(skb[])),y1_60 = h((pk(ska[]),ki_24[!1 = @sid_8583])),!1 = @sid_8584]))
+goal reachable: begin(startR(pk(skb[]),pk(ska[]),ki_34[!1 = @sid_8587],nr_53[y2_51 = aenc(ki_34[!1 = @sid_8587],pk(ska[])),y1_50 =
+h((pk(skb[]),ki_34[!1 = @sid_8587])),!1 = @sid_8588])) -> end(acceptI(pk(skb[]),pk(ska[]),ki_34[!1 = @sid_8587],nr_53[y2_51 =
+aenc(ki_34[!1 = @sid_8587],pk(ska[])),y1_50 = h((pk(skb[]),ki_34[!1 = @sid_8587])),!1 = @sid_8588]))
+goal reachable: begin(startR(pk(ska[]),pk(ska[]),ki[!1 = @sid_8591],nr_49[y2 = aenc(ki[!1 = @sid_8591],pk(ska[])),y1 = h((pk(ska[]),ki[!1 =
+@sid_8591])),!1 = @sid_8592])) -> end(acceptI(pk(ska[]),pk(ska[]),ki[!1 = @sid_8591],nr_49[y2 = aenc(ki[!1 = @sid_8591],pk(ska[])),y1 =
+h((pk(ska[]),ki[!1 = @sid_8591])),!1 = @sid_8592]))
+RESULT event(acceptI(x1_3829,x2_3830,x3_3831,x4_3832)) ==> event(startR(x1_3829,x2_3830,x3_3831,x4_3832)) is true.
+\end{Verbatim}
 \end{document}
-
-
-%$A \rightarrow B: aenc(A, K_{pub(B)})$
-
-%$B \rightarrow A: aenc(k_{AB}, K_{pub(A)})$

@@ -22,38 +22,65 @@ equation forall x:bitstring, y:skey; adec(aenc(x,pk(y)),y) = x.
 
 
 (* events *)
-event reach.
+event acceptI(pkey, pkey, bitstring, bitstring).
+event startR(pkey, pkey, bitstring, bitstring).
+event acceptR(pkey, pkey, bitstring, bitstring).
+event startI(pkey, pkey, bitstring, bitstring).
+
 
 (* queries *)
-query event(reach).
-query attacker(new ki).
-query attacker(new nr).
-
+(*query attacker(new ki).*)
+query x1:pkey, x2:pkey, x3:bitstring, x4:bitstring; event(acceptI(x1,x2,x3,x4)) ==> event(startR(x1,x2,x3,x4)).
+query x1:pkey, x2:pkey, x3:bitstring, x4:bitstring; event(acceptR(x1,x2,x3,x4)) ==> event(startI(x1,x2,x3,x4)).
 
 
 (* initiator process *)
 let Pi(ski:skey, pkr:pkey) = 
-	 new ki:bitstring; 
-	 out(c, (h((pk(ski),ki)), aenc(ki, pkr)));
-	 in(c, (x1:bitstring, x2:bitstring));
-	 let (n:bitstring) = adec(x2, ski) in
-		 let (=h((pkr, ki, n)), nr:bitstring) = x1 in
-			 out(c, h(n)).
-	 
+  new ki:bitstring;
+
+  (* Send the first message *)
+  out(c, (h((pk(ski),ki)), aenc(ki, pkr)));
+
+  (* Receive the second message *)
+  in(c, (x1:bitstring, x2:bitstring));
+  let (W:bitstring) = adec(x2, ski) in
+  (* Check the hash *)
+  let (=h((pkr, ki, W)), nr:bitstring) = x1 in
+
+  (* Send the last message*)
+  event startI(pk(ski),pkr,ki,W);
+  out(c, h(W));
+  if pkr <> pk(skc) then
+    event acceptI(pk(ski),pkr,ki,W). 
 
 (* responder process *)
-let Pr (sk:skey, pki:pkey)=
-	in(c, (y1:bitstring, y2:bitstring));
-	let (kr:bitstring) = adec(y2, sk) in
-		let (=h((pki(*pk(A)*),kr))) = y1 in
-			new nr:bitstring; 
-			out(c, (h((pk(sk), kr, nr)), aenc(nr, pki(*pk(A)*))));
-			in(c, y3:bitstring);
-			if h(nr) = y3 then event reach.
+let Pr(skr:skey, pki:pkey)=
+  (* Receive the first message *)
+  in(c, (y1:bitstring, y2:bitstring));
+  let (V:bitstring) = adec(y2, skr) in
+  let (=h((pki,V))) = y1 in
+
+  (* Send the second message *)
+  new nr:bitstring;
+  event startR(pki,pk(skr),V,nr);
+  out(c, (h((pk(skr), V, nr)), aenc(nr, pki)));
+
+  (* Receive the last message *)
+  in(c, y3:bitstring);
+  if h(nr) = y3 && pki <> pk(skc) then
+    event acceptR(pki,pk(skr),V,nr).
 			
 (* main process *)
-process  ( Pi(ska, pk(skb)) | Pr(skb, pk(ska)))
+(* Check for secrercy of K *)   
+(*process  ( ! Pi(ska, pk(skb)) | ! Pr(skb, pk(ska))
+         | out(c, pk(ska)) | out(c, pk(skb)) | out(c,skc))*)
 
+(* Check authentication *)
+process  ( ! Pi(ska, pk(ska)) | ! Pi(ska, pk(skb)) | ! Pi(ska, pk(skc))
+         | ! Pi(skb, pk(ska)) | ! Pi(skb, pk(skb)) | ! Pi(skb, pk(skc))
+         | ! Pr(ska, pk(ska)) | ! Pr(ska, pk(skb)) | ! Pr(ska, pk(skc))
+         | ! Pr(skb, pk(ska)) | ! Pr(skb, pk(skb)) | ! Pr(skb, pk(skc))
+         | out(c, pk(ska)) | out(c, pk(skb)) | out(c,skc))
 
 
 
